@@ -1,0 +1,160 @@
+@property --num {
+  syntax: "<integer>";
+  initial-value: 0;
+  inherits: false;
+}
+#mapid { height: 400px; }
+
+.top-contacts {
+    font: 700 30px system-ui;
+    margin-top: 20px;
+}
+
+h1  {
+  font: 800 50px system-ui;
+}
+.inline-test {
+  display: inline-block;
+  height: 100%;
+  background-color: blue;
+  float: right;
+}
+.contact {
+}
+.increment-num {
+  animation: increment-num-animation 5s;
+  animation-delay: 3s;
+  animation-fill-mode: forwards;
+  counter-reset: num var(--num);
+  display: inline;
+  color: green;
+}
+.increment-num::after {
+  content: counter(num);
+}
+
+.header {
+  border-bottom: 2px black solid;
+  margin-bottom: 20px
+}
+@keyframes increment-num-animation {
+  from {
+    --num: 0;
+  }
+  to {
+    --num: var(--end-num);
+  }
+}
+
+.aligned {
+  text-align: center;
+}
+
+.vertical-label {
+  transform-origin: 0 0;
+  transform: rotate(90deg);
+  margin: auto;
+  font-size: 30px;
+}
+
+.info-box-header {
+  background-color: #40a0f308;
+  padding: 5px
+}
+.fitted {
+  width:fit-content;
+}
+
+.spaced {
+  margin: auto;
+  justify-content: space-between;
+}
+
+.flex-row {
+  display:flex;
+  margin-bottom: 5px;
+  margin-top:5px;
+}
+.flex-row-reverse {
+  display:flex;
+  flex-direction: row-reverse;
+  margin-bottom:5px;
+  margin-top:5px;
+}
+
+.flex-column {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* adapted from  https://css-tricks.com/snippets/css/typewriter-effect/ */
+
+.typewriter {
+  overflow: hidden; /* Ensures the content is not revealed until the animation */
+  border-right: .15em solid transparent; /* The typwriter cursor */
+  white-space: nowrap; /* Keeps the content on a single line */
+  animation:
+    typing 5s steps(100, end),
+    blink-caret 5s;
+}
+.legend {
+  font-size: 20px;
+}
+
+/* The typing effect */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100%}
+}
+
+.info-box {
+  font: 600 14px system-ui;
+  margin: 10px;
+  width: 25%;
+  border: black 1px solid;
+  padding: 10px;
+  height: fit-content;
+}
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: orange; }
+}
+
+.left {
+  float:left;
+  position: absolute;
+}
+
+.right {
+  float: right;
+  position: absolute;
+}
+
+.section-header {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+}
+.imessage-wrapped {
+  font: 800 40px system-ui;
+  margin: 100px
+}
+
+.message-counter {
+  font-size: 10px;
+  line-height: 4px;
+  font-weight: 800;
+  margin-top:20px;
+  margin-bottom: 20px
+}
+.chart-container {
+  position:relative;
+  width: 100%;
+  height: 100%
+}
+
+.emoji {
+  font: 800 30px system-ui;
+}
