@@ -1,0 +1,3 @@
+([('start_app',
+   '/Users/mdanello/Code/Projects/imessage2020wrapped/dist/start_app',
+   'EXECUTABLE')],)
