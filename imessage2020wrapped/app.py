@@ -1,10 +1,12 @@
 # External Imports
 import sqlite3
 from flask import g, Flask, render_template, request, jsonify
+from flask_share import Share
 import pandas.io.sql as sqlio
 import pandas as pd
 import emoji
 import zipcodes
+import nltk
 # Standard Library
 import os
 import re
@@ -15,6 +17,7 @@ import getpass
 from collections import Counter
 # Local Imports
 from .sql_queries import *
+from .nlp_utils import *
 
 def get_user():
     username = getpass.getuser()
@@ -47,6 +50,7 @@ def get_address_db_path():
 
 
 app = Flask(__name__)
+share = Share(app)
 
 CHAT_DATABASE = get_chat_db_path()
 CONTACTS_DATABSES = get_address_db_path()
@@ -122,7 +126,6 @@ def get_contacts():
 
     return contacts_dict
 
-
 def extract_emojis(s):
     """
     extract all emojis in a string
@@ -164,6 +167,22 @@ def get_text_totals(wrapped, chat_cur):
     wrapped.total_texts_recieved = chat_cur.execute(TOTAL_TEXTS_RECIEVED).fetchone()[0]
     wrapped.total_pages = round(chat_cur.execute(TOTAL_CHARS).fetchone()[0]/CHARS_IN_PAGE)
 
+def get_text():
+    chat_conn = get_db(CHAT_DATABASE)
+    text_df = pd.read_sql(ALL_TEXT, chat_conn)
+    text = " ".join(text_df['text'])
+    return text
+
+def get_tokenized_text(text):
+    tokens = nltk.word_tokenize(text)
+    tokens_clean = [word.lower() for word in tokens if word.isalnum()]
+    return tokens_clean
+
+def get_initiator(chat_conn):
+    all_contacts = pd.read_sql(ALL_CHATS, chat_conn)
+    all_close_contacts = all_contacts[all_contacts['from_me'] > 25]
+    initiated = all_close_contacts.query('from_me > to_me')
+    return len(initiated.index)/len(all_contacts.index)
 
 def get_who_data(wrapped, chat_conn, contacts_dict):
     top_contacts = pd.read_sql(TOP_CHATS, chat_conn)
@@ -185,25 +204,9 @@ def get_what_data(wrapped, chat_conn):
     all_text_df = pd.read_sql(ALL_TEXT, chat_conn, parse_dates=["message_date"])
     wrapped.emojis = count_emojis(all_text_df['text']).most_common(8)
 
-
-@app.route('/', methods=['POST','GET'])
-def index():
-    contacts_dict = get_contacts()
-    wrapped = Wrapped()
-
-    chat_conn = get_db(CHAT_DATABASE)
-    chat_cur = chat_conn.cursor()
-
-    get_text_totals(wrapped, chat_cur)
-    get_who_data(wrapped, chat_conn, contacts_dict)
-    get_when_data(wrapped, chat_conn, chat_cur, contacts_dict)
-    get_what_data(wrapped, chat_conn)
-
-    return render_template("wrapped.html", wrapped=wrapped)
-
-def run_app():
-     app.run(debug=True)
-
+def get_how_data(wrapped, chat_conn, chat_cur):
+    wrapped.avg_message_len = chat_cur.execute(AVG_MESSAGE_LENGTH).fetchone()[0]
+    wrapped.initator= int(get_initiator(chat_conn)*100)
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -284,3 +287,83 @@ def contact_locations():
             }
 
     return people_map
+
+@app.route('/data/common_words', methods=['POST','GET'])
+def common_pos():
+    """api-ish route: returns most frequent parts of speech in sent text corpus"""
+
+    pos_list = [
+        {
+        'name':'Adjectives',
+        'code':'JJ',
+        'data': None
+        },
+        {
+        'name':'Nouns',
+        'code':'NN',
+        'data': None
+        },
+        {
+        'name':'Superlatives',
+        'code':'JJS',
+        'data': None
+        },
+        {
+        'name':'Verbs',
+        'code':'VB',
+        'data': None
+        },
+    ]
+
+    tf_idf_list = [
+        {
+            'name': 'Single',
+            'data': None
+        },
+        {
+            'name':'Bigram',
+            'data': None
+        }
+    ]
+
+    text = get_text()
+    tagged = tag_text(get_tokenized_text(text))
+
+    for pos in pos_list:
+        pos['data'] = common_word_dict(count_pos(pos['code'], tagged))
+
+    model = get_tfidf()
+    #bigram_model = get_biagam_tfidf()
+
+    top_tfidf = get_top_tf_idf(model, text)
+
+    # this was going to take too long load + it's huge. shame. the data is cool
+    #top_tfidf_bigrams = get_top_tf_idf(bigram_model, text)
+
+    tf_idf_list[0]['data'] = top_tfidf
+    #tf_idf_list[1]['data'] = top_tfidf_bigrams
+
+    return {'pos':pos_list, 'tfidf': tf_idf_list}
+
+@app.route('/', methods=['POST','GET'])
+def index():
+    contacts_dict = get_contacts()
+    wrapped = Wrapped()
+
+    chat_conn = get_db(CHAT_DATABASE)
+    chat_cur = chat_conn.cursor()
+
+    get_text_totals(wrapped, chat_cur)
+    get_who_data(wrapped, chat_conn, contacts_dict)
+    get_when_data(wrapped, chat_conn, chat_cur, contacts_dict)
+    get_what_data(wrapped, chat_conn)
+    get_how_data(wrapped, chat_conn, chat_cur)
+
+    return render_template("wrapped.html", wrapped=wrapped)
+
+@app.route('/share', methods=['POST','GET'])
+def share():
+    return render_template("share.html")
+
+def run_app():
+     app.run(debug=True)
