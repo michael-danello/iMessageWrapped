@@ -10,6 +10,7 @@
     margin-top: 20px;
 }
 
+
 h1  {
   font: 800 50px system-ui;
 }
@@ -21,13 +22,36 @@ h1  {
 }
 .contact {
 }
+
+
+.pos-header {
+  margin-bottom: 5px;
+  font-size: 20px;
+}
+
+.pos-text span:hover {
+    background-color:blue;
+    color: white;
+    font-weight: 800;
+    font-size: 20px;
+    border-radius: 2px;
+    padding: 2px;
+
+}
+
+.wordcloud {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  font-weight: 600;
+}
 .increment-num {
   animation: increment-num-animation 5s;
   animation-delay: 3s;
   animation-fill-mode: forwards;
   counter-reset: num var(--num);
   display: inline;
-  color: green;
+  color: rgb(0 128 0 / 50%);
 }
 .increment-num::after {
   content: counter(num);
@@ -112,9 +136,12 @@ h1  {
   font: 600 14px system-ui;
   margin: 10px;
   width: 25%;
-  border: black 1px solid;
+  border-color: #e6e6e6;
+  border-width: 1px;
+  border-style: solid;
   padding: 10px;
   height: fit-content;
+  border-radius: 5px;
 }
 /* The typewriter cursor effect */
 @keyframes blink-caret {
@@ -139,7 +166,9 @@ h1  {
 }
 .imessage-wrapped {
   font: 800 40px system-ui;
-  margin: 100px
+  margin: 100px;
+  margin-bottom: 50px;
+  height: 100%;
 }
 
 .message-counter {
@@ -157,4 +186,120 @@ h1  {
 
 .emoji {
   font: 800 30px system-ui;
+}
+
+.chat {
+  font-family: helvetica;
+  font-weight: 300;
+  font-size: 14px;
+  width: 60%;
+  margin: auto;
+}
+
+.messages {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  border-radius: 20px;
+  padding: 8px 15px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+
+.yours {
+  align-items: flex-start;
+}
+
+.yours .message {
+  margin-right: 25%;
+  background-color: #eee;
+  position: relative;
+}
+
+.yours .message.last:before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  bottom: 0;
+  left: -7px;
+  height: 20px;
+  width: 20px;
+  background: #eee;
+  border-bottom-right-radius: 15px;
+}
+.yours .message.last:after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: -10px;
+  width: 10px;
+  height: 20px;
+  background: white;
+  border-bottom-right-radius: 10px;
+}
+
+.mine {
+  align-items: flex-end;
+}
+
+.mine .message {
+  color: white;
+  margin-left: 25%;
+  background: linear-gradient(to bottom, #00D0EA 0%, #0085D1 100%);
+  background-attachment: fixed;
+  position: relative;
+}
+
+.mine .message.last:before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  bottom: 0;
+  right: -8px;
+  height: 20px;
+  width: 20px;
+  background: linear-gradient(to bottom, #00D0EA 0%, #0085D1 100%);
+  background-attachment: fixed;
+  border-bottom-left-radius: 15px;
+}
+
+.mine .message.last:after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  right: -10px;
+  width: 10px;
+  height: 20px;
+  background: white;
+  border-bottom-left-radius: 10px;
+}
+
+.footer {
+  bottom: 0;
+  flex-shrink: 0;
+  height: fit-content;
+  color: black;
+  font-size:20px;
+  display: flex;
+  font-weight: 800;
+  justify-content: space-between;
+  border-top: black 2px solid;
+  margin-top: 50px;
+}
+
+.icons {
+  align-self: center;
+  margin-right: 10px
+}
+
+.footer-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }

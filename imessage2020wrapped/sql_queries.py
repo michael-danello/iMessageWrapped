@@ -54,7 +54,7 @@ ORDER BY
     chat_message_date DESC
 """
 
-TOP_CHATS = """
+ALL_CHATS = """
 SELECT COUNT(chat.chat_identifier) as total_chats, SUM(CASE WHEN message.is_from_me=1 THEN 1 ELSE 0 END) as from_me, SUM(CASE WHEN message.is_from_me=0 THEN 1 ELSE 0 END) as to_me,  chat.chat_identifier as name
 FROM message
 JOIN chat_message_join cmj on cmj.message_id = message.ROWID
@@ -69,8 +69,9 @@ GROUP BY
     chat.chat_identifier
 ORDER BY
     total_chats DESC
-LIMIT 10;
 """
+
+TOP_CHATS = ALL_CHATS + "LIMIT 10;"
 
 ALL_CONTACTS = """
 select record.ZFIRSTNAME as first_name, record.ZLASTNAME as last_name, numbers.ZFULLNUMBER as number
@@ -213,6 +214,26 @@ WHERE
     number = '+12022887321'
 AND
     message_date > ghosted
+ORDER BY
+    message_date DESC;
+"""
+
+AVG_MESSAGE_LENGTH = """
+SELECT
+    AVG(LENGTH(message.text)),
+    datetime (message.date / 1000000000 + strftime ("%s", "2001-01-01"), "unixepoch", "localtime") AS message_date,
+    message.is_from_me,
+    chat.chat_identifier as number
+FROM
+    message
+JOIN chat_message_join cmj on cmj.message_id = message.ROWID
+JOIN chat on chat.ROWID = cmj.chat_id
+WHERE
+    chat_identifier REGEXP '\+1\d{10}'
+AND
+    text not NULL
+AND
+    message.is_from_me = 1
 ORDER BY
     message_date DESC;
 """

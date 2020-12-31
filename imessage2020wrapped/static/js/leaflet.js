@@ -23,6 +23,16 @@ function buildContactsMap(data) {
 
     var arrayOfLatLngs = [];
     var zipcode;
+    var maxPeople = 1;
+
+    for (var zipcode in data) {
+      if (data[zipcode]['people'].length > maxPeople) {
+        maxPeople = data[zipcode]['people'].length
+      };
+    }
+
+    var maxCircleWidth = 75;
+    var peopleWidth = maxCircleWidth/maxPeople
 
     for (zipcode in data) {
 
@@ -31,11 +41,12 @@ function buildContactsMap(data) {
     var people_formatted = data[zipcode]['people'].join("<br>")
     arrayOfLatLngs.push(place);
 
+
     var circle = L.circleMarker(place, {
         color: 'blue',
         fillColor: '#abb5d6',
         fillOpacity: .75-data[zipcode]['people'].length*.005,
-        radius: 1 * data[zipcode]['people'].length
+        radius: data[zipcode]['people'].length * peopleWidth
     }).addTo(mymap);
 
     circle.bindPopup(people_formatted, {

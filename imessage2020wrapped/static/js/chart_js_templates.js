@@ -82,7 +82,7 @@ function hourBarChart(labels, data, element_id, title) {
   var labels = labels;
   var data = data
   new Chart(document.getElementById(element_id), {
-      type: 'radar',
+      type: 'polarArea',
       data: {
         labels: labels,
         datasets: [
@@ -104,7 +104,7 @@ function hourBarChart(labels, data, element_id, title) {
         ]
       },
       options: {
-        legend: { display: true },
+        legend: { display: false },
         title: {
           display: true,
           text: title
@@ -125,12 +125,16 @@ function weekdayBarChart(labels, data, element_id, title) {
         datasets: [
           {
             label: "Messages Sent",
-            backgroundColor: "rgba(0,0,251,0.5)",
+            borderColor: "rgba(0,0,251,0.5)",
+            fill: false,
+            borderWidth: 20,
             data: data['from_me']
           },
           {
             label: "Messages Recieved",
-            backgroundColor: "rgba(30,126,52,0.5)",
+            borderColor: "rgba(30,126,52,0.5)",
+            fill:false,
+            borderWidth: 20,
             data: data['to_me']
           }
         ]
@@ -146,6 +150,14 @@ function weekdayBarChart(labels, data, element_id, title) {
           intersect: false
         },
         responsive: true,
+        layout: {
+          padding: {
+            left: 0,
+            right: 0,
+            top: 50,
+            bottom: 0
+        }
+        }
       }
   });
 };

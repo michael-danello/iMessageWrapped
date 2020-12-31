@@ -1,7 +1,6 @@
 # External Imports
 import sqlite3
 from flask import g, Flask, render_template, request, jsonify
-from flask_share import Share
 import pandas.io.sql as sqlio
 import pandas as pd
 import emoji
@@ -50,7 +49,6 @@ def get_address_db_path():
 
 
 app = Flask(__name__)
-share = Share(app)
 
 CHAT_DATABASE = get_chat_db_path()
 CONTACTS_DATABSES = get_address_db_path()
@@ -116,13 +114,14 @@ def get_contacts():
     dict with results. Return the contacts dict"""
 
     contacts_dict = {}
-
     for contacts_db in CONTACTS_DATABSES:
 
         contacts_conn = get_db(contacts_db)
         contacts_cur = contacts_conn.cursor()
         all_contacts = pd.read_sql(ALL_CONTACTS, contacts_conn)
+        print(all_contacts)
         contacts_dict.update(format_contacts(all_contacts))
+        print(contacts_dict)
 
     return contacts_dict
 
@@ -264,10 +263,14 @@ def all_hours():
 
 @app.route('/data/contact_map', methods=['POST','GET'])
 def contact_locations():
-    """api-ish route: returns lat/long positions of all contacts"""
+    """api-ish route: returns lat/long positions of all contacts texted ini 2020"""
 
-    #TODO change to only 2020
-    contacts = get_contacts()
+
+    all_contacts = get_contacts()
+    chat_conn = get_db(CHAT_DATABASE)
+    cur_contacts = pd.read_sql(ALL_CHATS, chat_conn)
+
+    contacts = {k:v for (k,v) in all_contacts.items() if k in list(cur_contacts['name'])}
 
     people_map = {}
     for number, name in contacts.items():
@@ -332,16 +335,7 @@ def common_pos():
     for pos in pos_list:
         pos['data'] = common_word_dict(count_pos(pos['code'], tagged))
 
-    model = get_tfidf()
-    #bigram_model = get_biagam_tfidf()
-
-    top_tfidf = get_top_tf_idf(model, text)
-
     # this was going to take too long load + it's huge. shame. the data is cool
-    #top_tfidf_bigrams = get_top_tf_idf(bigram_model, text)
-
-    tf_idf_list[0]['data'] = top_tfidf
-    #tf_idf_list[1]['data'] = top_tfidf_bigrams
 
     return {'pos':pos_list, 'tfidf': tf_idf_list}
 

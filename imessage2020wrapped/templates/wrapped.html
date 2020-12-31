@@ -5,32 +5,31 @@
 
     <div class = "header">
 
-    <h1> &#128241 IMessage Wrapped 2020 </h1>
+    <h1> &#128241 iMessage Wrapped 2020 </h1>
 
     </div>
 
-    <div class="flex-row ">
+    <div class="flex-row fadeMe">
         <span class="typewriter fitted"> This year you sent &#128394;
           <span class = "increment-num" style="--end-num: {{wrapped.total_texts_sent}}"></span>
-          text messages.
+          messages.
         </span>
      </div>
 
-     <div class="flex-row ">
+     <div class="flex-row fadeMe">
          <span class="typewriter fitted"> And recieved &#128236
-           <span class = "increment-num" style="--end-num: {{wrapped.total_texts_recieved}};color:blue">
+           <span class = "increment-num" style="--end-num: {{wrapped.total_texts_recieved}};color:rgb(0 0 255 / 0.3);">
            </span>
-           text messages.
          </span>
      </div>
 
-     <div class="flex-row ">
+     <div class="flex-row fadeMe">
        <div class="typewriter fitted">
        In total, you exchanged over {{ wrapped.total_pages }} pages of text.
        </div>
      </div>
 
-     <div class="flex-row ">
+     <div class="flex-row fadeMe" id = "WHO">
 
        <div class = "top-contacts">
          <div class = 'section-header spaced'>
@@ -40,7 +39,7 @@
 
        <ol>
        {% for key, value in  wrapped.top_contacts.items() %}
-       <li class="contact">
+       <li class="contact fadeFast">
          <div class="contact-name flex-row" style="justify-content:space-between;">
          <span> {{value['name']}}: </span>
          <span style="font-size:12px;align-self: flex-end;"> &#128316 Sent: {{value['from_me']}} &#128317 Recieved: {{value['to_me']}} </span>
@@ -67,31 +66,14 @@
      </div>
 
 
-     <div class="flex-row ">
+     <div class="flex-row fadeMe" id="WHEN">
           <div class="flex-column">
             <div class = "section-header">
             <h1>WHEN</h1>
             </div>
-            <div class = "flex-row">
+            <div class = "flex-row fadeScroll">
             <span class="vertical-label">DAY</span>
             <div class="chart-container left">
-
-              <div class="accordion flex-row-reverse" id="accordionNight" role="tablist" aria-multiselectable="true" style="width:100%">
-                <div class="info-box right" style="margin-top:50px">
-                  <div class="info-box-header" role="tab" id="headingOne1">
-                    <a data-toggle="collapse" data-parent="#accordionNight" href="#night" aria-expanded="true"
-                      aria-controls="collapseOne1">
-                      <span class="mb-0">
-                        <h5 class="aligned"><span> &#127814 &#128521 U up? <i class="fas fa-angle-down rotate-icon"></i></span><span style="float:right"> + </span></h5>
-                    </a>
-                  </div>
-                  <div id="night" class="collapse show" role="tabpanel" aria-labelledby="headingOne1"
-                    data-parent="#accordionEx">
-                      Your late night buddy was <b>{{wrapped.u_up['name']}}</b>. You sent them {{wrapped.u_up['total_sent']}}
-                      messages between 12 and 3 AM
-                  </div>
-                </div>
-              </div>
 
               <div class="accordion flex-row-reverse" id="accordionMorning" role="tablist" aria-multiselectable="true" style="width:100%">
                 <div class="info-box left" style="margin-top:50px;bottom:0">
@@ -117,31 +99,14 @@
                     <a data-toggle="collapse" data-parent="#accordionEvening" href="#evening" aria-expanded="true"
                       aria-controls="collapseOne1">
                       <h5 class="mb-0">
-                        <h5 class="aligned"><span> Night hours <i class="fas fa-angle-down rotate-icon"></i></span><span style="float:right"> + </span></h5>
+                        <h5 class="aligned"><span> &#127814 &#128521 U up? <i class="fas fa-angle-down rotate-icon"></i></span><span style="float:right"> + </span></h5>
                       </h5>
                     </a>
                   </div>
                   <div id="evening" class="collapse show" role="tabpanel" aria-labelledby="headingOne1"
                     data-parent="#accordionEx">
-                      TODO: Add in some fact about the night hours here
-                  </div>
-                </div>
-              </div>
-
-
-              <div class="accordion flex-row" id="accordionAfternoon" role="tablist" aria-multiselectable="true" style="width:100%">
-                <div class="info-box right" style="margin-top:50px;bottom:0">
-                  <div class="info-box-header" role="tab" id="headingOne1">
-                    <a data-toggle="collapse" data-parent="#accordionAfternoon" href="#afternoon" aria-expanded="true"
-                      aria-controls="collapseOne1">
-                      <h5 class="mb-0">
-                        <h5 class="aligned"> Afternoon!</h5> <i class="fas fa-angle-down rotate-icon"></i>
-                      </h5>
-                    </a>
-                  </div>
-                  <div id="afternoon" class="collapse show" role="tabpanel" aria-labelledby="headingOne1"
-                    data-parent="#accordionEx">
-                      TODO: Add in some fact about the afternoon here
+                    Your late night buddy was <b>{{wrapped.u_up['name']}}</b>. You sent them {{wrapped.u_up['total_sent']}}
+                    messages between 12 and 3 AM
                   </div>
                 </div>
               </div>
@@ -151,14 +116,14 @@
             </div>
             </div>
 
-            <div class = "flex-row">
+            <div class = "flex-row fadeScroll">
               <span class="vertical-label">WEEK</span>
             <div class="chart-container right">
               <canvas id="weekday-chart"></canvas>
             </div>
             </div>
 
-            <div class="flex-row">
+            <div class="flex-row fadeScroll">
               <span class="vertical-label">YEAR</span>
             <div class="chart-container right">
               <div class="accordion flex-row" id="accordionEx" role="tablist" aria-multiselectable="true" style="width:100%">
@@ -174,9 +139,10 @@
                   <div id="collapseTwo" class="collapse show" role="tabpanel" aria-labelledby="topDays"
                     data-parent="#accordionEx">
                       Your most texted days were (in order)
-                      {% for day in wrapped.top_days %}
+                      {% for day in wrapped.top_days[:-2] %}
                         <b> {{day}} </b>,
                       {% endfor %}
+                      and <b> {{wrapped.top_days[-1]}} </b>
                   </div>
                 </div>
               </div>
@@ -192,47 +158,110 @@
 
 
 
-      <div class = "">
+      <div class = "fadeMe">
       <div class = "section-header">
       <h1>WHERE</h1>
       </div>
-      <h5>The people you texted in 2020, mapped </h5>
-      <div id="mapid"></div>
+            <div class="fadeScroll">
+                <h5>The people you texted in 2020, mapped </h5>
+                <div id="mapid"></div>
+            </div>
       </div>
 
 
-      <div class = "">
+      <div class = "fadeMe">
       <div class="section-header">
       <h1>WHAT</h1>
       </div>
 
-      <h5>Your top emojis of 2020 </h5>
+      <div class="wordcloud">
+      <h5 class="underline-header">  Parts of Text </h5>
+      <h6> Your most frequently used words by type of speech </h6>
+      </div>
+
+      <h5 class="underline-header" style="margin-top:20px">Your top emojis of 2020 </h5>
       <div class="flex-row spaced">
         {% for emoji in wrapped.emojis %}
         <div class="emoji spaced">
           {{emoji[0]}} {{emoji[1]}}
         </div>
         {% endfor %}
-
-      </div>
       </div>
 
-      <div class = "">
+
+
+      </div>
+
+      <div class = "fadeMe">
       <div class="section-header">
       <h1>HOW</h1>
       </div>
 
       <h5>Text Frequency </h5>
-      <div class="flex-row spaced">
+      <div class="flex-column">
+        <div class="initator">
 
+        <div class="chat">
+
+          <div class="mine messages">
+              <div class="message last">
+                I gotta know....how did I text this year
+              </div>
+          </div>
+
+          {% set text_len = wrapped.avg_message_len|int %}
+          <div class= "yours messages">
+            <div class="message">
+              {% set init =  wrapped.initator %}
+              {% if init >= 50 %}
+
+              You were the initiator.
+              {% else %}
+
+              You were more of a listener.
+              {% endif %}
+            </div>
+            <div class="message last">
+              Among your close friends, you sent more messages in {{init}}% of the conversations
+            </div>
+            </div>
+
+            <div class="mine messages">
+                <div class="message last">
+                  What about frequency?
+                </div>
+            </div>
+
+            <div class="yours messages">
+              <div class="message fadeFast">
+                Your average message length was {{text_len}} characters
+              </div>
+              <div class = "message fadeFast">
+                That's about this long:
+              </div>
+              <div class = "message last">
+                {{"A"*(text_len-2)}}H!
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <div class = "footer">
+        <div style="margin-left:5px">
+          Made by Mike Danello
+        </div>
+        <div class = "icons">
+        <a style="margin-left:30px" href="https://github.com/michael-danello/iMessageWrapped">
+        <img src="static/github.png" width="20px" height="20px">
+        </a>
+        <a style="margin-left:5px" href="mailto:email@address.com">
+        <img src="static/email.png" width="20px" height="20px">
+        </a>
+        </div>
       </div>
-
-
-     </div>
-
-
+    </div>
   </div>
-  <!-- Accordion card -->
+
 
 {% endblock %}
