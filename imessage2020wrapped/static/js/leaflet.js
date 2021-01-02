@@ -1,10 +1,9 @@
-var getData = $.get('/data/contact_map')
+var getData = $.get('/data/contact_map', { year: queryYear() })
 getData.done(function(results) {
   var strResults = JSON.stringify(results);
   var data = results;
   buildContactsMap(data);
 });
-
 
 function buildContactsMap(data) {
 

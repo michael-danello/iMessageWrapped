@@ -1,4 +1,4 @@
-var getData = $.get('/data/common_words')
+var getData = $.get('/data/common_words', { year: queryYear() })
 getData.done(function(results) {
   var strResults = JSON.stringify(results);
   var pos = results['pos'];
