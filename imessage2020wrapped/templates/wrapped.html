@@ -5,7 +5,7 @@
 
     <div class = "header">
 
-    <h1> &#128241 iMessage Wrapped 2020 </h1>
+    <h1> &#128241 iMessage Wrapped {{ year }} </h1>
 
     </div>
 
@@ -20,6 +20,7 @@
          <span class="typewriter fitted"> And received &#128236
            <span class = "increment-num" style="--end-num: {{wrapped.total_texts_recieved}};color:rgb(0 0 255 / 0.3);">
            </span>
+           messages.
          </span>
      </div>
 
@@ -163,7 +164,7 @@
       <h1>WHERE</h1>
       </div>
             <div class="fadeScroll">
-                <h5>The people you texted in 2020, mapped </h5>
+                <h5>The people you texted in {{ year }}, mapped </h5>
                 <div id="mapid"></div>
             </div>
       </div>
@@ -179,7 +180,7 @@
       <h6> Your most frequently used words by type of speech </h6>
       </div>
 
-      <h5 class="underline-header" style="margin-top:20px">Your top emojis of 2020 </h5>
+      <h5 class="underline-header" style="margin-top:20px">Your top emojis of {{ year }} </h5>
       <div class="flex-row spaced">
         {% for emoji in wrapped.emojis %}
         <div class="emoji spaced">

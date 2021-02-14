@@ -1,4 +1,4 @@
-var getData = $.get('/data/all_days')
+var getData = $.get('/data/all_days', { year: queryYear() })
 getData.done(function(results) {
   var strResults = JSON.stringify(results);
   var labels = results['day'];
@@ -7,7 +7,7 @@ getData.done(function(results) {
   yearBarChart(labels, data, element_id, "month", "Texts by Day");
 });
 
-var getData = $.get('/data/all_hours')
+var getData = $.get('/data/all_hours', { year: queryYear() })
 getData.done(function(results) {
   var strResults = JSON.stringify(results);
   var labels = results['time'];
@@ -16,7 +16,7 @@ getData.done(function(results) {
   hourBarChart(labels, data, element_id, "Texts by Hour");
 });
 
-var getData = $.get('/data/week_days')
+var getData = $.get('/data/week_days', { year: queryYear() })
 getData.done(function(results) {
   var strResults = JSON.stringify(results);
   var labels = results['day'];
@@ -24,6 +24,12 @@ getData.done(function(results) {
   var element_id = "weekday-chart";
   weekdayBarChart(labels, data, element_id, "Texts by Day of the Week");
 });
+
+function queryYear() {
+  var queryString = window.location.search;
+  var urlParams = new URLSearchParams(queryString);
+  return urlParams.get('year')
+}
 
 // Bar chart
 function yearBarChart(labels, data, element_id, time_unit, title) {

@@ -161,14 +161,14 @@ def avg_datetime(series):
 
     return str(int(avg_time)) + ":" + str(int(avg_time % 1 * 60))
 
-def get_text_totals(wrapped, chat_cur):
-    wrapped.total_texts_sent = chat_cur.execute(TOTAL_TEXTS_SENT).fetchone()[0]
-    wrapped.total_texts_recieved = chat_cur.execute(TOTAL_TEXTS_RECIEVED).fetchone()[0]
-    wrapped.total_pages = round(chat_cur.execute(TOTAL_CHARS).fetchone()[0]/CHARS_IN_PAGE)
+def get_text_totals(wrapped, chat_cur, year):
+    wrapped.total_texts_sent = chat_cur.execute(total_texts_sent(year)).fetchone()[0]
+    wrapped.total_texts_recieved = chat_cur.execute(total_texts_received(year)).fetchone()[0]
+    wrapped.total_pages = round(chat_cur.execute(total_chars(year)).fetchone()[0]/CHARS_IN_PAGE)
 
-def get_text():
+def get_text(year):
     chat_conn = get_db(CHAT_DATABASE)
-    text_df = pd.read_sql(ALL_TEXT, chat_conn)
+    text_df = pd.read_sql(all_text(year), chat_conn)
     text = " ".join(text_df['text'])
     return text
 
@@ -177,35 +177,35 @@ def get_tokenized_text(text):
     tokens_clean = [word.lower() for word in tokens if word.isalnum()]
     return tokens_clean
 
-def get_initiator(chat_conn):
-    all_contacts = pd.read_sql(ALL_CHATS, chat_conn)
+def get_initiator(chat_conn, year):
+    all_contacts = pd.read_sql(all_chats(year), chat_conn)
     all_close_contacts = all_contacts[all_contacts['from_me'] > 25]
     initiated = all_close_contacts.query('from_me > to_me')
     return len(initiated.index)/len(all_contacts.index)
 
-def get_who_data(wrapped, chat_conn, contacts_dict):
-    top_contacts = pd.read_sql(TOP_CHATS, chat_conn)
+def get_who_data(wrapped, chat_conn, contacts_dict, year):
+    top_contacts = pd.read_sql(top_chats(year), chat_conn)
     top_contacts = top_contacts.replace({'name':contacts_dict})
     wrapped.top_contacts = top_contacts.to_dict(orient='index')
 
 
-def get_when_data(wrapped, chat_conn, chat_cur, contacts_dict):
-    top_days = pd.read_sql(TOP_DAYS, chat_conn, parse_dates='day')['day']
-    top_days_formatted = [str(day.month_name()) + " " + str(day.day) for day in top_days]
+def get_when_data(wrapped, chat_conn, chat_cur, contacts_dict, year):
+    top_days_raw = pd.read_sql(top_days(year), chat_conn, parse_dates='day')['day']
+    top_days_formatted = [str(day.month_name()) + " " + str(day.day) for day in top_days_raw]
     wrapped.top_days = top_days_formatted
-    time = pd.read_sql(FIRST_TEXT_OF_DAY, chat_conn, parse_dates=["full_time"])['full_time']
+    time = pd.read_sql(first_text_of_day(year), chat_conn, parse_dates=["full_time"])['full_time']
     wrapped.wake_up_avg = avg_datetime(time)
-    u_up = chat_cur.execute(U_UP).fetchone()
-    wrapped.u_up = {'total_sent':u_up[0], 'name':contacts_dict[u_up[2]]}
+    u_up_raw = chat_cur.execute(u_up(year)).fetchone()
+    wrapped.u_up = {'total_sent':u_up_raw[0], 'name':contacts_dict[u_up_raw[2]]}
 
 
-def get_what_data(wrapped, chat_conn):
-    all_text_df = pd.read_sql(ALL_TEXT, chat_conn, parse_dates=["message_date"])
+def get_what_data(wrapped, chat_conn, year):
+    all_text_df = pd.read_sql(all_text(year), chat_conn, parse_dates=["message_date"])
     wrapped.emojis = count_emojis(all_text_df['text']).most_common(8)
 
-def get_how_data(wrapped, chat_conn, chat_cur):
-    wrapped.avg_message_len = chat_cur.execute(AVG_MESSAGE_LENGTH).fetchone()[0]
-    wrapped.initator= int(get_initiator(chat_conn)*100)
+def get_how_data(wrapped, chat_conn, chat_cur, year):
+    wrapped.avg_message_len = chat_cur.execute(avg_message_length(year)).fetchone()[0]
+    wrapped.initator= int(get_initiator(chat_conn, year)*100)
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -221,8 +221,9 @@ def all_week_days():
     """
 
     chat_conn = get_db(CHAT_DATABASE)
+    year = int(request.args.get('year') or 2020)
 
-    all_days =  pd.read_sql(ALL_DAYS, chat_conn, parse_dates=["day"])
+    all_days =  pd.read_sql(all_days_query(year), chat_conn, parse_dates=["day"])
     all_days['to_me'] = (all_days['to_me']/52).astype(int)
     all_days['from_me'] = (all_days['from_me']/52).astype(int)
     # hacky fix since days needed to be grouped and then sorted
@@ -238,10 +239,10 @@ def all_days():
     """
     api-ish route: calculuates frequency by day of the year
     """
-
+    year = int(request.args.get('year') or 2020)
     chat_conn = get_db(CHAT_DATABASE)
 
-    return db_to_json(ALL_DAYS, chat_conn)
+    return db_to_json(all_days_query(year), chat_conn)
 
 @app.route('/data/all_hours', methods=['POST','GET'])
 def all_hours():
@@ -249,7 +250,9 @@ def all_hours():
     """api-ish route: retrieves, structures, and labels frequency data by hour"""
 
     chat_conn = get_db(CHAT_DATABASE)
-    df = pd.read_sql(ALL_HOURS, chat_conn)
+
+    year = int(request.args.get('year') or 2020)
+    df = pd.read_sql(all_hours_query(year), chat_conn)
 
     df = df.sort_values(by="time")
 
@@ -263,12 +266,13 @@ def all_hours():
 
 @app.route('/data/contact_map', methods=['POST','GET'])
 def contact_locations():
-    """api-ish route: returns lat/long positions of all contacts texted ini 2020"""
+    """api-ish route: returns lat/long positions of all contacts texted"""
 
 
     all_contacts = get_contacts()
     chat_conn = get_db(CHAT_DATABASE)
-    cur_contacts = pd.read_sql(ALL_CHATS, chat_conn)
+    year = int(request.args.get('year') or 2020)
+    cur_contacts = pd.read_sql(all_chats(year), chat_conn)
 
     contacts = {k:v for (k,v) in all_contacts.items() if k in list(cur_contacts['name'])}
 
@@ -294,6 +298,8 @@ def contact_locations():
 @app.route('/data/common_words', methods=['POST','GET'])
 def common_pos():
     """api-ish route: returns most frequent parts of speech in sent text corpus"""
+
+    year = int(request.args.get('year') or 2020)
 
     pos_list = [
         {
@@ -329,7 +335,7 @@ def common_pos():
         }
     ]
 
-    text = get_text()
+    text = get_text(year)
     tagged = tag_text(get_tokenized_text(text))
 
     for pos in pos_list:
@@ -346,14 +352,15 @@ def index():
 
     chat_conn = get_db(CHAT_DATABASE)
     chat_cur = chat_conn.cursor()
+    year = int(request.args.get('year') or 2020)
 
-    get_text_totals(wrapped, chat_cur)
-    get_who_data(wrapped, chat_conn, contacts_dict)
-    get_when_data(wrapped, chat_conn, chat_cur, contacts_dict)
-    get_what_data(wrapped, chat_conn)
-    get_how_data(wrapped, chat_conn, chat_cur)
+    get_text_totals(wrapped, chat_cur, year)
+    get_who_data(wrapped, chat_conn, contacts_dict, year)
+    get_when_data(wrapped, chat_conn, chat_cur, contacts_dict, year)
+    get_what_data(wrapped, chat_conn, year)
+    get_how_data(wrapped, chat_conn, chat_cur, year)
 
-    return render_template("wrapped.html", wrapped=wrapped)
+    return render_template("wrapped.html", wrapped=wrapped, year=year)
 
 @app.route('/share', methods=['POST','GET'])
 def share():
